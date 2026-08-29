@@ -203,6 +203,8 @@ I built two GitHub Actions workflows located in `.github/workflows/`:
 - **Deploy Production:** Rolls out the verified container image to Production ECS and validates health.
 - **Failure Alerts:** Triggers Slack webhook notifications on any job failure.
 
+> *Note: For the scope of this assignment to keep infrastructure cost-conscious, staging and production share the same provisioned ECS cluster/service, with the GitHub Environment manual approval gate serving as the release promotion gate.*
+
 ---
 
 ## Observability & Monitoring

@@ -39,7 +39,7 @@
     2. **Build & Scan:** Builds Docker container, runs Trivy vulnerability scanner.
     3. **OIDC Auth & ECR:** Keyless authentication using OpenID Connect (no long-lived AWS keys) and image push to ECR with Git SHA tag.
     4. **Staging Deploy:** Rolls out to Staging ECS service and runs automated `/health` smoke test.
-    5. **Manual Production Gate:** Shows the GitHub Environment `production` approval gate requiring human sign-off before production rollout.
+    5. **Manual Production Gate:** Shows the GitHub Environment `production` approval gate requiring human sign-off before production rollout (noting that staging and production share the provisioned ECS service for this assignment's scope, with the environment gate as the promotion control).
     6. **Production Deploy:** Deploys the approved image artifact to Production ECS.
 
 ### 5. Monitoring, Logging & Dashboards (3:45 – 4:30)
