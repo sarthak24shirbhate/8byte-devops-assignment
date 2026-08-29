@@ -8,15 +8,16 @@ logger = logging.getLogger("app.database")
 Base = declarative_base()
 
 # Use SQLite for local tests or PostgreSQL for staging/prod
-connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
+connect_args = (
+    {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
+)
 
 engine = create_engine(
-    settings.database_url,
-    connect_args=connect_args,
-    pool_pre_ping=True
+    settings.database_url, connect_args=connect_args, pool_pre_ping=True
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 def init_db():
     try:
@@ -25,8 +26,10 @@ def init_db():
     except Exception as e:
         logger.warning(f"Database initialization warning: {e}")
 
+
 # Call init_db on module import so tables exist
 init_db()
+
 
 def get_db():
     db = SessionLocal()
@@ -35,9 +38,10 @@ def get_db():
     finally:
         db.close()
 
+
 def check_db_connection() -> bool:
     try:
-        with engine.connect() as connection:
+        with engine.connect():
             return True
     except Exception as e:
         logger.warning(f"Database health check warning: {e}")

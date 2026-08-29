@@ -1,7 +1,7 @@
 def test_create_and_list_items_workflow(client):
     payload = {
         "title": "Provision VPC via Terraform",
-        "description": "2 public subnets, 2 private subnets, NAT Gateway, ALB"
+        "description": "2 public subnets, 2 private subnets, NAT Gateway, ALB",
     }
     # 1. Create item
     create_res = client.post("/api/v1/items", json=payload)
@@ -17,6 +17,7 @@ def test_create_and_list_items_workflow(client):
     items = list_res.json()
     assert len(items) >= 1
     assert any(i["id"] == item_data["id"] for i in items)
+
 
 def test_create_item_invalid_payload(client):
     # Empty title should fail Pydantic validation (422)

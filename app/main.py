@@ -5,7 +5,7 @@ import json
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
-from fastapi import FastAPI, Depends, Request, Response, status
+from fastapi import FastAPI, Depends, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import Base, engine, get_db, check_db_connection
 from app.models import ItemDB, ItemCreate, ItemResponse
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # STRUCTURED JSON LOGGING SETUP
@@ -35,6 +36,7 @@ class JSONFormatter(logging.Formatter):
             log_entry["exception"] = self.formatException(record.exc_info)
         return json.dumps(log_entry)
 
+
 logger = logging.getLogger("app")
 logger.setLevel(logging.INFO)
 handler = logging.StreamHandler()
@@ -54,20 +56,26 @@ METRICS = {
     "total_latency_ms": 0.0,
 }
 
+
 # ---------------------------------------------------------------------------------------------------------------------
 # APPLICATION LIFECYCLE (Startup & Graceful Shutdown)
 # ---------------------------------------------------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info(f"Starting {settings.APP_NAME} v{settings.APP_VERSION} in environment: {settings.ENVIRONMENT}")
+    logger.info(
+        f"Starting {settings.APP_NAME} v{settings.APP_VERSION} in environment: {settings.ENVIRONMENT}"
+    )
     try:
         # Create tables if not exist
         Base.metadata.create_all(bind=engine)
         logger.info("Database schema initialized successfully.")
     except Exception as e:
-        logger.warning(f"Database schema initialization warning (will retry on demand): {e}")
+        logger.warning(
+            f"Database schema initialization warning (will retry on demand): {e}"
+        )
     yield
     logger.info(f"Shutting down {settings.APP_NAME} gracefully.")
+
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -75,7 +83,7 @@ app = FastAPI(
     description="8Byte.ai DevOps Engineer Assignment Production Microservice",
     lifespan=lifespan,
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 app.add_middleware(
@@ -86,6 +94,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # ---------------------------------------------------------------------------------------------------------------------
 # REQUEST TIMING & LOGGING MIDDLEWARE
 # ---------------------------------------------------------------------------------------------------------------------
@@ -93,31 +102,35 @@ app.add_middleware(
 async def log_and_measure_requests(request: Request, call_next):
     request_id = request.headers.get("x-request-id", str(uuid.uuid4()))
     start_time = time.time()
-    
+
     response = await call_next(request)
-    
+
     latency_ms = round((time.time() - start_time) * 1000, 2)
     response.headers["x-request-id"] = request_id
     response.headers["x-response-time-ms"] = str(latency_ms)
-    
+
     # Update metrics
     METRICS["total_requests"] += 1
     METRICS["total_latency_ms"] += latency_ms
-    
+
     if 200 <= response.status_code < 400:
         METRICS["requests_2xx"] += 1
     elif 400 <= response.status_code < 500:
         METRICS["requests_4xx"] += 1
     elif response.status_code >= 500:
         METRICS["requests_5xx"] += 1
-        
+
     extra = {
         "request_id": request_id,
         "latency_ms": latency_ms,
-        "status_code": response.status_code
+        "status_code": response.status_code,
     }
-    logger.info(f"{request.method} {request.url.path} -> {response.status_code} ({latency_ms}ms)", extra=extra)
+    logger.info(
+        f"{request.method} {request.url.path} -> {response.status_code} ({latency_ms}ms)",
+        extra=extra,
+    )
     return response
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # ENDPOINTS
@@ -131,15 +144,16 @@ def read_root():
         "environment": settings.ENVIRONMENT,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "status": "healthy",
-        "docs": "/docs"
+        "docs": "/docs",
     }
+
 
 @app.get("/health", tags=["Observability"])
 def health_check():
     """Liveness & Readiness probe used by ALB Target Group."""
     db_ok = check_db_connection()
     uptime_sec = round(time.time() - START_TIME, 2)
-    
+
     status_code = status.HTTP_200_OK
     return JSONResponse(
         status_code=status_code,
@@ -149,18 +163,23 @@ def health_check():
             "database": "connected" if db_ok else "degraded/disconnected",
             "environment": settings.ENVIRONMENT,
             "version": settings.APP_VERSION,
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        }
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        },
     )
+
 
 @app.get("/api/v1/metrics", tags=["Observability"])
 def get_metrics():
     """Lightweight operational and performance metrics endpoint."""
     uptime_sec = max(round(time.time() - START_TIME, 2), 0.001)
     total_req = METRICS["total_requests"]
-    avg_latency = round(METRICS["total_latency_ms"] / total_req, 2) if total_req > 0 else 0.0
+    avg_latency = (
+        round(METRICS["total_latency_ms"] / total_req, 2) if total_req > 0 else 0.0
+    )
     req_per_sec = round(total_req / uptime_sec, 2)
-    error_rate_pct = round((METRICS["requests_5xx"] / total_req) * 100, 2) if total_req > 0 else 0.0
+    error_rate_pct = (
+        round((METRICS["requests_5xx"] / total_req) * 100, 2) if total_req > 0 else 0.0
+    )
 
     return {
         "uptime_seconds": uptime_sec,
@@ -171,9 +190,10 @@ def get_metrics():
         "status_breakdown": {
             "2xx": METRICS["requests_2xx"],
             "4xx": METRICS["requests_4xx"],
-            "5xx": METRICS["requests_5xx"]
-        }
+            "5xx": METRICS["requests_5xx"],
+        },
     }
+
 
 @app.get("/api/v1/items", response_model=list[ItemResponse], tags=["Items"])
 def list_items(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
@@ -181,7 +201,13 @@ def list_items(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
     items = db.query(ItemDB).offset(skip).limit(limit).all()
     return items
 
-@app.post("/api/v1/items", response_model=ItemResponse, status_code=status.HTTP_201_CREATED, tags=["Items"])
+
+@app.post(
+    "/api/v1/items",
+    response_model=ItemResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["Items"],
+)
 def create_item(item: ItemCreate, db: Session = Depends(get_db)):
     """Create a new item in PostgreSQL database."""
     db_item = ItemDB(title=item.title, description=item.description)

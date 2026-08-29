@@ -3,8 +3,10 @@ from sqlalchemy import Column, Integer, String, DateTime, Text
 from pydantic import BaseModel, Field, ConfigDict
 from app.database import Base
 
+
 def utc_now():
     return datetime.now(timezone.utc)
+
 
 # SQLAlchemy Database Model
 class ItemDB(Base):
@@ -15,10 +17,21 @@ class ItemDB(Base):
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=utc_now)
 
+
 # Pydantic Schemas for API validation
 class ItemCreate(BaseModel):
-    title: str = Field(..., min_length=1, max_length=255, json_schema_extra={"example": "Sample DevOps Task"})
-    description: str | None = Field(None, max_length=1000, json_schema_extra={"example": "Automate infrastructure using Terraform"})
+    title: str = Field(
+        ...,
+        min_length=1,
+        max_length=255,
+        json_schema_extra={"example": "Sample DevOps Task"},
+    )
+    description: str | None = Field(
+        None,
+        max_length=1000,
+        json_schema_extra={"example": "Automate infrastructure using Terraform"},
+    )
+
 
 class ItemResponse(BaseModel):
     id: int
