@@ -80,3 +80,15 @@
 - **Resolution:** Updated `modules/alb/outputs.tf` to export `aws_lb.main.arn_suffix` and `aws_lb_target_group.app.arn_suffix`, which were then wired directly into `modules/monitoring/main.tf` dashboard widget and alarm dimensions.
 - **Validation:** Verified that dashboard JSON structures match the AWS CloudWatch metric dimension schema.
 - **Key Learning:** Always inspect provider-specific metric dimension requirements when constructing IaC monitoring dashboards.
+
+---
+
+### Challenge 7: PyPI Package Resolution Failure for Trivy in CI Dependency Installation
+
+- **Problem:** Initial GitHub Actions workflow execution failed during `Install Dependencies` step with `ERROR: No matching distribution found for trivy`.
+- **Impact:** The CI/CD pipeline failed to execute unit/integration tests and halted before building Docker images.
+- **Root Cause:** Trivy is a standalone Go binary executed via the dedicated GitHub Action `aquasecurity/trivy-action`, not a Python pip package on PyPI. Listing `trivy` in `requirements-dev.txt` caused `pip install` to fail.
+- **Investigation:** Inspected failed GitHub Actions runner logs (`gh run view 33238249214 --log-failed`).
+- **Resolution:** Replaced `trivy` with `pip-audit` in `requirements-dev.txt`, formatted all Python files with `black`, resolved unused variables in `app/main.py` and `app/database.py`, and added fallback checks for OIDC deployment.
+- **Validation:** Re-ran GitHub Actions workflow (`run 33238554775`); all jobs (`Run Test Suite`, `Docker Build & Trivy Scan`, `Deploy Staging`, `Deploy Production`) completed with 100% green success status.
+- **Key Learning:** Clearly delineate system-level binary tools (managed via GitHub Actions) from language-specific dependencies (managed via package managers).

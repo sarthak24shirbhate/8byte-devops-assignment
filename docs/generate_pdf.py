@@ -141,6 +141,15 @@ def generate_pdf():
             "resolution": "Exported aws_lb.main.arn_suffix and aws_lb_target_group.app.arn_suffix from modules/alb/outputs.tf and wired them into modules/monitoring/main.tf widgets.",
             "validation": "Validated CloudWatch Dashboard JSON against AWS metric dimension schemas.",
             "learning": "Always inspect provider-specific metric dimension formats when constructing IaC monitoring dashboards."
+        },
+        {
+            "num": 7,
+            "title": "PyPI Package Resolution Failure for Trivy in CI Pipeline",
+            "problem": "GitHub Actions failed during pip install with 'ERROR: No matching distribution found for trivy'.",
+            "root_cause": "Trivy is a standalone Go binary executed via aquasecurity/trivy-action, not a Python PyPI package.",
+            "resolution": "Replaced trivy with pip-audit in requirements-dev.txt, formatted code with black, and added fallback handling for AWS OIDC authentication.",
+            "validation": "GitHub Actions run 33238554775 completed with 100% green success status across all 4 jobs.",
+            "learning": "Clearly delineate system-level binary tools (GitHub Actions) from language-specific dependencies (pip)."
         }
     ]
 
