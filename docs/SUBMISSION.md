@@ -1,47 +1,25 @@
-# 8Byte.ai DevOps Engineer Assignment — Final Submission & Requirement Matrix
+# Technical Assignment Submission Notes
 
 **Candidate:** Sarthak Shirbhate  
 **Role:** Senior DevOps / SRE Engineer  
 **Repository:** [https://github.com/sarthak24shirbhate/8byte-devops-assignment](https://github.com/sarthak24shirbhate/8byte-devops-assignment)  
-**Date:** August 2026  
+**Target:** 8Byte.ai DevOps Engineer Assignment  
 
 ---
 
-## 1. Assignment Requirement Matrix & Implementation Mapping
+## Deliverables Checklist
 
-| Assignment Part | Requirement | Implementation in Repository | Status |
-| :--- | :--- | :--- | :--- |
-| **Part 1: Infrastructure** | VPC with Public & Private Subnets | [`terraform/modules/vpc/main.tf`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/terraform/modules/vpc/main.tf) (2 Public, 2 Private across 2 AZs) | **Complete** |
-| | ECS/Fargate Application Hosting | [`terraform/modules/ecs/main.tf`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/terraform/modules/ecs/main.tf) (Fargate Cluster, Task Definition, Service) | **Complete** |
-| | RDS PostgreSQL Database | [`terraform/modules/rds/main.tf`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/terraform/modules/rds/main.tf) (Private DB Subnet Group, Encrypted gp3) | **Complete** |
-| | Security Groups & Least Privilege | [`terraform/modules/security-groups/main.tf`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/terraform/modules/security-groups/main.tf) (ALB -> ECS -> RDS SG chains) | **Complete** |
-| | Application Load Balancer | [`terraform/modules/alb/main.tf`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/terraform/modules/alb/main.tf) (Internet-Facing, IP Target Group, Health Checks) | **Complete** |
-| | Configurable `variables.tf` | [`terraform/variables.tf`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/terraform/variables.tf) (Validated CIDRs, compute, DB parameters) | **Complete** |
-| | Remote State Management | [`terraform/bootstrap/`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/terraform/bootstrap) (S3 Bucket + DynamoDB State Locking) | **Complete** |
-| | Outputs for Key Resources | [`terraform/outputs.tf`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/terraform/outputs.tf) (ALB DNS, VPC, ECS, RDS endpoint, ECR URL, OIDC Role) | **Complete** |
-| **Part 2: CI/CD Automation** | PR Test Execution Workflow | [`.github/workflows/pr-validation.yml`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/.github/workflows/pr-validation.yml) (Lint, Pytest, Terraform Validate) | **Complete** |
-| | Docker Build & ECR Push on Merge | [`.github/workflows/deploy.yml`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/.github/workflows/deploy.yml) (Trivy Scan, OIDC Auth, ECR Push) | **Complete** |
-| | Deploy to Staging Environment | [`.github/workflows/deploy.yml`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/.github/workflows/deploy.yml) (ECS Staging rollout + automated smoke test) | **Complete** |
-| | Manual Approval Step for Production | [`.github/workflows/deploy.yml`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/.github/workflows/deploy.yml) (GitHub Environment `production` gate) | **Complete** |
-| | Unit & Integration Tests | [`tests/test_app.py`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/tests/test_app.py) & [`tests/test_integration.py`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/tests/test_integration.py) | **Complete** |
-| | Vulnerability Scanning | Trivy Filesystem Scan (PR) & Trivy Container Image Scan (Deploy) | **Complete** |
-| | Failure Notifications | [`.github/workflows/deploy.yml`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/.github/workflows/deploy.yml) (Slack Webhook & Step Summary alert) | **Complete** |
-| **Part 3: Monitoring & Logging** | Infrastructure Metrics | [`terraform/modules/monitoring/main.tf`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/terraform/modules/monitoring/main.tf) (ECS CPU/Mem, ALB count/4xx/5xx, RDS CPU/Storage) | **Complete** |
-| | Application Metrics | [`app/main.py`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/app/main.py) (`/api/v1/metrics` latency, req/sec, error rate) | **Complete** |
-| | Database Metrics | CloudWatch RDS Metrics (CPUUtilization, DatabaseConnections, FreeStorageSpace) | **Complete** |
-| | Centralized Logging | CloudWatch Log Group (`/ecs/8byte-dev-app`) with 7-day retention | **Complete** |
-| | Two Meaningful Dashboards | Dashboard 1: `Infrastructure-Health`, Dashboard 2: `Application-Health` | **Complete** |
-| | Metric Alarms & SNS | 5 CloudWatch Alarms (High CPU, Unhealthy Targets, 5XX errors, Low Storage) | **Complete** |
-| **Part 4: Documentation** | Comprehensive `README.md` | [`README.md`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/README.md) (Architecture, decisions, security, runbook, cost) | **Complete** |
-| | Secret Management | AWS Secrets Manager (`aws_secretsmanager_secret`) & zero plaintext in git | **Complete** |
-| | Backup Strategy | RDS Automated Backups (7-day retention), PITR, and S3 versioning | **Complete** |
-| | Challenges & Resolutions | [`CHALLENGES.md`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/CHALLENGES.md) (Problem, root cause, resolution, validation, learning) | **Complete** |
-| | Loom Presentation Script | [`docs/Loom_Recording_Checklist.md`](file:///C:/Users/sarth/.gemini/antigravity-ide/scratch/8byte-infrastructure/docs/Loom_Recording_Checklist.md) | **Complete** |
-
----
-
-## 2. Gap Analysis
-
-- **Coverage:** 100% of requirements across Parts 1, 2, 3, and 4 are fully implemented and verified.
-- **Code Quality:** All Python unit and integration tests pass with zero failures. All Terraform code is formatted and passes `terraform validate` with zero warnings and zero errors.
-- **Security Check:** Zero credentials, access keys, or plaintext database passwords exist in git.
+| Requirement | Implementation Location | Notes |
+| :--- | :--- | :--- |
+| **VPC with Public/Private Subnets** | `terraform/modules/vpc/` | Multi-AZ (AZ1, AZ2), 2 public subnets, 2 private subnets, NAT Gateway, Route Tables |
+| **ECS Fargate Hosting** | `terraform/modules/ecs/` | Fargate cluster, task definition, service, IAM execution & task roles |
+| **RDS PostgreSQL Database** | `terraform/modules/rds/` | PostgreSQL 15.7 in private DB subnets, gp3 encryption, automated backups |
+| **Security Groups** | `terraform/modules/security-groups/` | Least-privilege rules: ALB -> ECS -> RDS |
+| **Load Balancer** | `terraform/modules/alb/` | Internet-facing ALB, IP target group, `/health` endpoint checks |
+| **Variables & State Management** | `terraform/variables.tf`, `terraform/bootstrap/` | Input validation, S3 backend with DynamoDB locking |
+| **CI/CD Pipelines** | `.github/workflows/` | PR testing, Trivy scan, OIDC auth, ECR push, Staging deploy, Manual Prod approval |
+| **Monitoring & Dashboards** | `terraform/modules/monitoring/` | 2 CloudWatch dashboards (Infra + App Health), 5 alarms, SNS alerts |
+| **Logging** | `terraform/modules/ecs/` | Centralized CloudWatch log group with 7-day retention |
+| **Documentation & Runbook** | `README.md`, `CHALLENGES.md` | Architecture, local setup, runbook, cost optimization, and real challenges |
+| **Challenges PDF** | `docs/8Byte_DevOps_Assignment_Challenges_Sarthak_Shirbhate.pdf` | Formatted PDF deliverable |
+| **Loom Demo Script** | `docs/Loom_Recording_Checklist.md` | Step-by-step presentation walkthrough |
