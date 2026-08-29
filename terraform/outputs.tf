@@ -72,6 +72,11 @@ output "http_url" {
   value       = "http://${module.alb.alb_dns_name}"
 }
 
+output "alb_access_logs_bucket" {
+  description = "The name of the S3 bucket created for ALB access logs"
+  value       = module.alb.alb_access_logs_bucket
+}
+
 # ---------------------------------------------------------------------------------------------------------------------
 # ECS FARGATE OUTPUTS
 # ---------------------------------------------------------------------------------------------------------------------

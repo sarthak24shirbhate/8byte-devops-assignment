@@ -42,3 +42,8 @@ output "http_listener_arn" {
   description = "The ARN of the HTTP listener"
   value       = aws_lb_listener.http.arn
 }
+
+output "alb_access_logs_bucket" {
+  description = "The name of the S3 bucket created for ALB access logs"
+  value       = aws_s3_bucket.alb_logs.id
+}

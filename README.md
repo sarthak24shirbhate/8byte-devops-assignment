@@ -229,12 +229,15 @@ I set up monitoring using native AWS CloudWatch resources in `terraform/modules/
    - RDS PostgreSQL CPU Utilization >= 80%.
    - All alarms dispatch alerts to an Amazon SNS topic (`8byte-dev-alerts`).
 
+4. **ALB Access Logging:** Raw HTTP access logs are automatically published to a dedicated S3 bucket (`${project_name}-${environment}-alb-logs-*`) with AES-256 server-side encryption and a 30-day lifecycle expiration rule for cost control.
+
 ---
 
 ## Security & Secrets Management
 
 - **Zero-Trust Network Isolation:** ECS containers and RDS PostgreSQL are strictly placed in private subnets with RFC1918 addresses. RDS has `publicly_accessible = false`.
 - **Chained Security Groups:** The ALB accepts traffic on 80/443. The ECS security group allows traffic **only from the ALB security group**. The RDS security group allows port 5432 **only from the ECS security group**.
+- **Centralized & Encrypted Access Logs:** ALB ingress logs are streamed to a private, non-public S3 bucket with default AES-256 encryption and public access blocks.
 - **No Plaintext Passwords:** Master database passwords are generated via Terraform's `random_password` and stored directly into AWS Secrets Manager. The ECS Task Definition references the secret ARN via `valueFrom`, allowing the container agent to inject the password in-memory at runtime.
 - **Container Hardening:** The `Dockerfile` uses a multi-stage build, runs as unprivileged user `appuser` (UID 10001), and includes a container healthcheck.
 - **Keyless CI/CD:** GitHub Actions uses OpenID Connect (OIDC) with ephemeral AWS STS tokens scoped to `repo:sarthak24shirbhate/8byte-devops-assignment:*`.
