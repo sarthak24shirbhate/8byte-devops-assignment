@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 8byte-app
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=8byte-devops-service
+      - APP_VERSION=1.0.0
+      - ENVIRONMENT=local-dev
+      - PORT=8000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=appdb
+      - DB_USER=appadmin
+      - DB_PASSWORD=localdevpassword123!
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: 8byte-postgres
+    environment:
+      - POSTGRES_DB=appdb
+      - POSTGRES_USER=appadmin
+      - POSTGRES_PASSWORD=localdevpassword123!
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appadmin -d appdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

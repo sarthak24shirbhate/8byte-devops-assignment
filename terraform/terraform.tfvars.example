@@ -1,0 +1,46 @@
+# ==============================================================================
+# Terraform Variables Example (terraform.tfvars.example)
+# Copy this file to terraform.tfvars and adjust values as needed.
+# DO NOT commit terraform.tfvars containing sensitive data to version control.
+# ==============================================================================
+
+# General
+aws_region      = "us-east-1"
+project_name    = "8byte"
+environment     = "dev"
+owner           = "sarthak-shirbhate"
+github_org_repo = "sarthak24shirbhate/8byte-devops-assignment"
+alert_email     = "sarthak24shirbhate@gmail.com"
+
+# Networking
+vpc_cidr             = "10.0.0.0/16"
+public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs = ["10.0.11.0/24", "10.0.12.0/24"]
+availability_zones   = [] # Empty list dynamically detects first 2 AZs in aws_region
+single_nat_gateway   = true # Set to false for Multi-AZ NAT in production
+
+# Security & Ingress
+application_port        = 8000
+alb_ingress_cidr_blocks = ["0.0.0.0/0"]
+health_check_path       = "/health"
+health_check_matcher    = "200-399"
+certificate_arn         = null # Set to "arn:aws:acm:..." when HTTPS is desired
+
+# ECS Fargate Application
+container_image    = "public.ecr.aws/nginx/nginx:alpine"
+container_cpu      = 256 # 0.25 vCPU
+container_memory   = 512 # 512 MiB
+desired_count      = 2
+log_retention_days = 7
+
+# RDS PostgreSQL Database
+rds_engine                = "postgres"
+rds_engine_version        = "15.7"
+rds_instance_class        = "db.t3.micro"
+rds_allocated_storage     = 20
+rds_max_allocated_storage = 50
+database_name             = "appdb"
+database_username         = "appadmin"
+backup_retention_period   = 7
+deletion_protection       = false # Set to true for production
+skip_final_snapshot       = true  # Set to false for production

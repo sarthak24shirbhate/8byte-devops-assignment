@@ -1,0 +1,51 @@
+# Terraform local directories and state files
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+crash.*.log
+
+# Variable definition files containing secrets/local overrides
+# (Keep terraform.tfvars.example tracked in git)
+*.tfvars
+*.tfvars.json
+!terraform.tfvars.example
+!*.example.tfvars
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI configuration and logs
+.terraformrc
+terraform.rc
+*.log
+
+# Sensitive credentials & environment files
+.env
+.env.*
+*.pem
+*.key
+*.pub
+*.db
+*.sqlite
+*.sqlite3
+credentials
+secrets
+*id_rsa*
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
