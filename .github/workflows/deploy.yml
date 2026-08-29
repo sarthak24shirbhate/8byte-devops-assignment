@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image_tag: ${{ steps.set_tag.outputs.image_tag }}
-      image_uri: ${{ steps.set_tag.outputs.image_uri }}
+      image_uri: ${{ steps.push_ecr.outputs.image_uri || steps.set_tag.outputs.image_uri }}
       has_aws_auth: ${{ steps.check_auth.outputs.has_aws_auth }}
     steps:
       - name: Checkout Code
@@ -109,11 +109,13 @@ jobs:
 
       - name: Tag and Push Image to Amazon ECR
         if: steps.check_auth.outputs.has_aws_auth == 'true'
+        id: push_ecr
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
           IMAGE_TAG: ${{ steps.set_tag.outputs.image_tag }}
         run: |
           FULL_IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "image_uri=$FULL_IMAGE_URI" >> $GITHUB_OUTPUT
           docker tag 8byte-app:$IMAGE_TAG $FULL_IMAGE_URI
           docker tag 8byte-app:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $FULL_IMAGE_URI
